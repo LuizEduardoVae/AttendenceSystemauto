@@ -149,4 +149,42 @@ def process_frame(image_read, face_encodings, labels, attendance_file, attendanc
 
     return image_read
 
+# Main function to start the video capture and recognition process
+def main():
+    """
+    The main function initializes everything and starts the webcam feed for facial recognition.
+    It continuously captures frames, processes them, and displays the results. Attendance is also recorded.
+    """
+    image_path = "images"
+    attendance_file = "attendance.csv"
+    attendance_records = {}  # Dictionary to track the last attendance time of each person
 
+    # Load images and labels from the directory
+    images, labels = load_images_and_labels(image_path)
+
+    # Compute face encodings for the loaded images
+    face_encodings = encode_faces(images)
+
+    # Initialize the CSV file for attendance records
+    initialize_csv(attendance_file)
+
+    # Start the webcam
+    capture = cv.VideoCapture(1)  # 0 for default webcam
+
+    while True:
+        result, image_read = capture.read()
+        if result:
+            # Process each frame for face detection and recognition
+            processed_frame = process_frame(image_read, face_encodings, labels, attendance_file, attendance_records)
+            cv.imshow("Window", processed_frame)
+
+        if cv.waitKey(1) & 0xFF == 27:  # Press 'ESC' to exit
+            break
+
+    capture.release()
+    cv.destroyAllWindows()
+
+
+# Call the main function to start the program
+if __name__ == "__main__":
+    main()
