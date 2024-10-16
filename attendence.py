@@ -69,3 +69,31 @@ def initialize_csv(attendance_file):
             writer = csv.writer(file)
             writer.writerow(["Name", "Date", "Time"])  # CSV Headers
 
+
+# Function to update attendance records and write to CSV
+def record_attendance(detected_person, attendance_file, attendance_records):
+    """
+    Records the attendance of a detected person. If the person has not been recorded within the past second,
+    it updates the CSV file with the person's name, date, and time of detection.
+
+    Args:
+        detected_person (str): Name of the detected person.
+        attendance_file (str): The CSV file where attendance records are stored.
+        attendance_records (dict): A dictionary that tracks the last recorded time of each person.
+    """
+    now = datetime.now()
+
+    # Check if the person has been recorded in the last second
+    if (detected_person not in attendance_records) or (now - attendance_records[detected_person] >= timedelta(seconds=1)):
+        attendance_records[detected_person] = now  # Update the last recorded time
+
+        # Format the current date and time for CSV
+        date_str = now.strftime("%Y-%m-%d")
+        time_str = now.strftime("%H:%M:%S")
+
+        # Write the attendance record to the CSV file
+        with open(attendance_file, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([detected_person, date_str, time_str])
+
+
