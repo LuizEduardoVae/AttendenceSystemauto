@@ -55,3 +55,17 @@ def encode_faces(images):
     
     return face_encodings
 
+
+# Function to initialize the attendance CSV file with headers
+def initialize_csv(attendance_file):
+    """
+    Creates a CSV file with headers ("Name", "Date", "Time") if it does not already exist.
+
+    Args:
+        attendance_file (str): The filename of the CSV file to create or open.
+    """
+    if not os.path.isfile(attendance_file):
+        with open(attendance_file, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Name", "Date", "Time"])  # CSV Headers
+
