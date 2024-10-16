@@ -36,3 +36,22 @@ def load_images_and_labels(image_path):
     return images, labels
 
 
+# Function to compute face encodings for each image
+def encode_faces(images):
+    """
+    Given a list of images, this function computes the face encodings for each image.
+    The encodings are unique representations of faces and are used for comparison during recognition.
+
+    Args:
+        images (list): List of images for which face encodings will be generated.
+
+    Returns:
+        face_encodings (list): List of face encodings corresponding to each image.
+    """
+    face_encodings = []
+    for image in images:
+        face_encoding = face_recognition.face_encodings(image)[0]  # Only take the first face encoding
+        face_encodings.append(face_encoding)
+    
+    return face_encodings
+
