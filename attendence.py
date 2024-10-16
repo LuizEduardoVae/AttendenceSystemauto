@@ -97,3 +97,56 @@ def record_attendance(detected_person, attendance_file, attendance_records):
             writer.writerow([detected_person, date_str, time_str])
 
 
+# Function to process each frame from the webcam, detect faces, and recognize them
+def process_frame(image_read, face_encodings, labels, attendance_file, attendance_records, scale=0.25, face_score=0.6):
+    """
+    Processes the current frame from the webcam, detects faces, and compares them with known face encodings.
+    If a match is found, the person's attendance is recorded.
+
+    Args:
+        image_read (ndarray): The current frame captured by the webcam.
+        face_encodings (list): Pre-computed face encodings of known faces.
+        labels (list): Corresponding labels (names) for the face encodings.
+        attendance_file (str): The CSV file where attendance records are stored.
+        attendance_records (dict): A dictionary that tracks the last recorded time of each person.
+        scale (float): Scale factor to resize the input image for faster processing. Default is 0.25.
+        face_score (float): Threshold to consider a face match. Default is 0.6.
+
+    Returns:
+        image_read (ndarray): The processed image with rectangles and labels drawn on detected faces.
+    """
+    # Resize and convert the image for faster processing
+    image_rgb = cv.cvtColor(image_read, cv.COLOR_BGR2RGB)
+    image_rgb = cv.resize(image_rgb, (0, 0), None, scale, scale)
+
+    try:
+        # Detect face locations and encodings in the frame
+        face_locations = face_recognition.face_locations(image_rgb)
+        face_encodings_in_frame = face_recognition.face_encodings(image_rgb, face_locations)
+
+        # Loop through each detected face
+        for face_location, face_encoding in zip(face_locations, face_encodings_in_frame):
+            face_match = face_recognition.compare_faces(face_encodings, face_encoding)
+            face_distance = face_recognition.face_distance(face_encodings, face_encoding)
+            best_match_index = face_match.index(True) if True in face_match else None
+
+            y1, x2, y2, x1 = face_location
+            y1, x2, y2, x1 = int(y1 / scale), int(x2 / scale), int(y2 / scale), int(x1 / scale)
+
+            if best_match_index is not None and face_distance[best_match_index] < face_score:
+                detected_person = labels[best_match_index].replace('.jpg', '')
+                record_attendance(detected_person, attendance_file, attendance_records)
+            else:
+                detected_person = "Unknown"
+
+            # Draw rectangles and labels on the image
+            cv.rectangle(image_read, (x1, y1), (x2, y2), (50, 200, 50), 2)
+            cv.rectangle(image_read, (x1, y1 - 25), (x2, y1 - 4), (50, 200, 50), cv.FILLED)
+            cv.putText(image_read, detected_person, (x1, y1 - 4), cv.FONT_HERSHEY_SIMPLEX, 1, (200, 200, 200), 2)
+
+    except IndexError as e:
+        print('No Face Detected', e)
+
+    return image_read
+
+
