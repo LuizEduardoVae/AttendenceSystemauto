@@ -99,7 +99,7 @@ def record_attendance(detected_person, attendance_file, attendance_records):
 
 
 # Function to process each frame from the webcam, detect faces, and recognize them
-def process_frame(image_read, face_encodings, labels, attendance_file, attendance_records, scale=0.80, face_score=0.5):
+def process_frame(image_read, face_encodings, labels, attendance_file, attendance_records, scale=1.0, face_score=0.6):
     """
     Processes the current frame from the webcam, detects faces, and compares them with known face encodings.
     If a match is found, the person's attendance is recorded.
