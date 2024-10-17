@@ -3,6 +3,7 @@ import os
 import face_recognition
 import csv
 from datetime import datetime, timedelta
+from threading import Thread
 
 
 # Function to load images and labels from a specified directory
@@ -50,7 +51,7 @@ def encode_faces(images):
     """
     face_encodings = []
     for image in images:
-        face_encoding = face_recognition.face_encodings(image)[0]  # Only take the first face encoding
+        face_encoding = face_recognition.face_encodings(image, num_jitters=100)[0]  # Only take the first face encoding
         face_encodings.append(face_encoding)
     
     return face_encodings
@@ -98,7 +99,7 @@ def record_attendance(detected_person, attendance_file, attendance_records):
 
 
 # Function to process each frame from the webcam, detect faces, and recognize them
-def process_frame(image_read, face_encodings, labels, attendance_file, attendance_records, scale=0.25, face_score=0.6):
+def process_frame(image_read, face_encodings, labels, attendance_file, attendance_records, scale=0.80, face_score=0.5):
     """
     Processes the current frame from the webcam, detects faces, and compares them with known face encodings.
     If a match is found, the person's attendance is recorded.
@@ -121,7 +122,7 @@ def process_frame(image_read, face_encodings, labels, attendance_file, attendanc
 
     try:
         # Detect face locations and encodings in the frame
-        face_locations = face_recognition.face_locations(image_rgb)
+        face_locations = face_recognition.face_locations(image_rgb, model="cnn")
         face_encodings_in_frame = face_recognition.face_encodings(image_rgb, face_locations)
 
         # Loop through each detected face
@@ -171,11 +172,13 @@ def main():
     # Start the webcam
     capture = cv.VideoCapture(1)  # 0 for default webcam
 
+
     while True:
         result, image_read = capture.read()
         if result:
+            flipped = cv.flip(image_read, 1)
             # Process each frame for face detection and recognition
-            processed_frame = process_frame(image_read, face_encodings, labels, attendance_file, attendance_records)
+            processed_frame = process_frame(flipped, face_encodings, labels, attendance_file, attendance_records)
             cv.imshow("Window", processed_frame)
 
         if cv.waitKey(1) & 0xFF == 27:  # Press 'ESC' to exit
