@@ -122,7 +122,7 @@ def process_frame(image_read, face_encodings, labels, attendance_file, attendanc
 
     try:
         # Detect face locations and encodings in the frame
-        face_locations = face_recognition.face_locations(image_rgb, model="cnn")
+        face_locations = face_recognition.face_locations(image_rgb, model="hog")
         face_encodings_in_frame = face_recognition.face_encodings(image_rgb, face_locations)
 
         # Loop through each detected face
@@ -142,8 +142,8 @@ def process_frame(image_read, face_encodings, labels, attendance_file, attendanc
 
             # Draw rectangles and labels on the image
             cv.rectangle(image_read, (x1, y1), (x2, y2), (50, 200, 50), 2)
-            cv.rectangle(image_read, (x1, y1 - 25), (x2, y1 - 4), (50, 200, 50), cv.FILLED)
-            cv.putText(image_read, detected_person, (x1, y1 - 4), cv.FONT_HERSHEY_SIMPLEX, 1, (200, 200, 200), 2)
+            cv.rectangle(image_read, (x1, y1 - 45), (x2, y1 - 4), (50, 200, 50), cv.FILLED)
+            cv.putText(image_read, detected_person, (x1, y1 - 4), cv.FONT_HERSHEY_DUPLEX, 2, (200, 200, 200), 2)
 
     except IndexError as e:
         print('No Face Detected', e)
